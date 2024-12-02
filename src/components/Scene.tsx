@@ -72,7 +72,7 @@ export default function Scene() {
       </group>
 
       {/* Baker model with enhanced materials */}
-      <group ref={group} position={[0, 0.55, -3.5]} scale={[1.3, 1.3, 1.3]} rotation={[0, 0, 0]}>
+      <group ref={group} position={[0, 0.55, -3.3]} scale={[1.3, 1.3, 1.3]} rotation={[0, 0, 0]}>
         <primitive 
           object={nodes.Scene} 
           dispose={null}
