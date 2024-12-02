@@ -3,6 +3,7 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 import * as THREE from 'three'
 import { GLTF } from 'three-stdlib'
 
+
 type GLTFResult = GLTF & {
   nodes: {
     [key: string]: THREE.Mesh
@@ -17,8 +18,8 @@ export default function Scene() {
   const studioGroup = useRef<THREE.Group>(null)
 
   // Load the models
-  const gltf = useGLTF('/baker.glb') as GLTFResult
-  const studioGltf = useGLTF('/studio.glb') as GLTFResult
+  const gltf = useGLTF('../../public/baker.glb') as GLTFResult
+  const studioGltf = useGLTF('../../public/studio.glb') as GLTFResult
   const { nodes, materials, animations } = gltf
   const { actions, names } = useAnimations(animations, group)
 
@@ -85,4 +86,4 @@ export default function Scene() {
 }
 
 // Preload models
-useGLTF.preload(['/baker.glb', '/studio.glb'])
+useGLTF.preload(['../../public/baker.glb', '../../public/studio.glb'])
