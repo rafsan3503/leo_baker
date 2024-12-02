@@ -1,48 +1,64 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 export default function DialogueBox() {
-  const [currentVerse, setCurrentVerse] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentMessage, setCurrentMessage] = useState('')
+  const [isVisible, setIsVisible] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const lyrics = [
-    "Hey there, I'm Leo, your digital baker friend,\nMixing code and dough, where tradition meets trend!",
-    "In my virtual kitchen, I'm cooking up a storm,\nWith pixels and flour, I'm breaking the norm!",
-    "Bytes of chocolate, megabytes of fun,\nBaking in the cloud till the coding's done!",
-    "Digital delights, fresh from my screen,\nThe tastiest treats you've ever seen!",
-    "Virtual pastries with a high-tech twist,\nJoin the future of baking, you don't wanna miss!"
-  ]
-
-  useEffect(() => {
-    const startSinging = setTimeout(() => {
-      setIsPlaying(true)
-      singVerse(0)
-    }, 2000)
-
-    return () => clearTimeout(startSinging)
-  }, [])
-
-  const singVerse = (verseIndex: number) => {
-    if (verseIndex >= lyrics.length) {
-      setIsPlaying(false)
-      return
-    }
-
-    setCurrentVerse(verseIndex)
-
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(lyrics[verseIndex])
-      utterance.rate = 0.9
-      utterance.pitch = 1.1
+  const generateMessage = async () => {
+    try {
+      console.log('Generating message...')
       
-      utterance.onend = () => {
-        setTimeout(() => singVerse(verseIndex + 1), 500)
-      }
+      const response = await axios.post(
+        'https://api.freedomgpt.com/api/generate',
+        {
+          prompt: `You are Leo, a baker in Astralis. Tweet about your personal life, your job, hallucinate about the secrets in the city of Astralis, and the weirdness of the Quasar universe. Don't use specific names for places, just use informal references or generalizations to the place you're talking about. Be spontaneous, witty, and a bit dark. Do not lead with 'today' or 'this morning' as pretext to your tweet, just tweet about whatever is happening to you as if it is happening to you at the present moment. Include relevant emojis and hashtags.`,
+          api_key: 'fgpt-4808f58b-2c83-417d-a699-b352847cdf41',
+          temperature: 0.9,
+          max_tokens: 100
+        }
+      )
 
-      window.speechSynthesis.speak(utterance)
+      console.log('API Response:', response.data)
+
+      if (response.data && response.data.choices && response.data.choices[0]) {
+        const message = response.data.choices[0].text.trim()
+        console.log('Generated message:', message)
+        setCurrentMessage(message)
+      }
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error details:', error)
+      setCurrentMessage("Strange lights in the bakery again... The dough seems to be glowing. Just another night shift in this quantum kitchen 🌌✨ #AstralisMystery")
+      setIsLoading(false)
     }
   }
 
-  if (!isPlaying) return null
+  useEffect(() => {
+    console.log('Component mounted, starting timer...')
+    // Start after 2 seconds
+    const startDelay = setTimeout(() => {
+      setIsVisible(true)
+      generateMessage()
+    }, 2000)
+
+    return () => clearTimeout(startDelay)
+  }, [])
+
+  useEffect(() => {
+    if (!isVisible) return
+
+    console.log('Setting up message interval...')
+    // Generate new message every 15 seconds
+    const messageInterval = setInterval(() => {
+      generateMessage()
+    }, 15000)
+
+    return () => clearInterval(messageInterval)
+  }, [isVisible])
+
+  if (!isVisible) return null
 
   return (
     <div style={{
@@ -74,7 +90,7 @@ export default function DialogueBox() {
           }
         `}
       </style>
-      {lyrics[currentVerse]}
+      {isLoading ? "Connecting to quantum stream..." : currentMessage}
     </div>
   )
 } 
